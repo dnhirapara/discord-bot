@@ -2,8 +2,9 @@ require('dotenv').config();
 const dbConfig = require("./config/db.config.js");
 const mongoose = require("mongoose");
 
-const { CreateBroadCast } = require('./routes')
+const { CreateBroadCast, RefreshToken } = require('./routes')
 const User = require('./models/UserModel');
+const { parseString, toCode, toInlineCode } = require('./utils')
 
 
 const { Client, Intents } = require('discord.js')
@@ -19,32 +20,59 @@ client.on("messageCreate", async (message) => {
     if (message.author.bot) return;
     if (message.content.startsWith(PREFIX)) {
         const [CMD_NAME, ...args] = message.content.trim()
-            .substring(PREFIX.length).split(/\s+/);
+            .substring(PREFIX.length).replace(/[ ]+/g, " ").split(" ");
         console.log(CMD_NAME);
         console.log(args);
-        if (CMD_NAME == 'create') {
+        if (CMD_NAME === 'create') {
             const userData = await User.findOne({ username: message.author.tag });
+            console.log(userData.expiry);
+            console.log(Date.now());
+            if (userData.expiry <= Date.now()) {
+                const tokenData = await RefreshToken(userData.refresh_token);
+                console.log(tokenData);
+                userData.expiry = (Number(tokenData.expires_in) * 1000) + Date.now() - 5;
+                userData.access_token = tokenData.access_token;
+                userData.id_token = tokenData.id_token;
+                await userData.save();
+            }
             // console.log(userData);
-            const res = await CreateBroadCast({ title: "HELLO", description: "HELLO", access_token: userData.access_token });
-            console.log(res);
-            message.reply(`msg ${res.snippet.title}`);
+            if (!userData.title || !userData.description) {
+                message.reply(`title or description not available. Please set it by ${toInlineCode('$set \{title:<title>, description:<description>\}')}`)
+            }
+            const newTitle = parseString(userData.title, 0, Date.now());
+            const res = await CreateBroadCast({ title: newTitle, description: userData.description, access_token: userData.access_token });
+            // console.log(res);
+            message.reply(`msg \`\`\`${JSON.stringify(res)}\`\`\``);
+        } else if (CMD_NAME === 'set') {
+            try {
+                let userData = await User.findOne({ username: message.author.tag });
+                let newData = JSON.parse(args.join(" "));
+                console.log(args.join(" "));
+                const keys = Object.keys(newData);
+                console.log(keys);
+                for (let i of keys) {
+                    userData[i] = newData[i];
+                }
+                await userData.save();
+                message.reply("Data Saved Successfully!!!")
+            } catch (e) {
+                console.log(e);
+                message.reply("ERROR: " + e)
+            }
+        } else if (CMD_NAME === 'setimage') {
+            let userData = await User.findOne({ username: message.author.tag });
+            userData.imageURL = message.attachments.first().url;
+            await userData.save();
+            message.reply("Image uploaded Successfully!!!");
         }
     }
-
-    console.log(message.author.id);
-    console.log(`${message.author.tag} : ${message.content}`);
-    console.log(`${message.channel} and ID: ${message.channelId}`)
 });
 
 const connectWithDB = async () => {
-    // console.log(dbConfig.url)
-    // console.log(process.env.DB_URL)
     await mongoose
         .connect(dbConfig.url, {
             useUnifiedTopology: true,
             useNewUrlParser: true,
-            // useFindAndModify: false,
-            // useCreateIndex: true,
         })
         .then((connection) => {
             console.log(`Connected with Database: ${connection.connection.name}`);

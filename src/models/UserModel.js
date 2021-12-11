@@ -6,6 +6,10 @@ var UserSchema = new mongoose.Schema({
     channelID: { type: String, required: true },
     refresh_token: { type: String, required: false },
     access_token: { type: String, required: false },
+    expiry: { type: Number, required: false },
+    title: { type: String },
+    imageURL: { type: String },
+    description: { type: String },
 })
 
 module.exports = mongoose.model('User', UserSchema)
