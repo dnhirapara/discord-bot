@@ -1,30 +1,33 @@
 {
-  "name": "discord-youtube",
-  "version": "1.0.0",
-  "description": "Discord Bot for managing youstube streams.",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node index.js",
-    "nodemon": "nodemon index.js"
-  },
-  "author": "",
-  "license": "ISC",
-  "dependencies": {
-    "@discordjs/builders": "^0.9.0",
-    "@discordjs/rest": "^0.1.0-canary.0",
-    "axios": "^0.24.0",
-    "cors": "^2.8.5",
-    "discord-api-types": "^0.25.2",
-    "discord.js": "^13.3.1",
-    "dotenv": "^10.0.0",
-    "express": "^4.17.1",
-    "helmet": "^4.6.0",
-    "mongoose": "^6.1.1",
-    "morgan": "^1.10.0",
-    "qs": "^6.10.2"
-  },
-  "devDependencies": {
-    "eslint": "^8.4.1"
-  }
+	"name": "discord-youtube",
+	"version": "1.0.0",
+	"description": "Discord Bot for managing youstube streams.",
+	"main": "index.js",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1",
+		"start": "node index.js",
+		"nodemon": "nodemon index.js"
+	},
+	"author": "",
+	"license": "ISC",
+	"dependencies": {
+		"@discordjs/builders": "^0.9.0",
+		"@discordjs/rest": "^0.1.0-canary.0",
+		"axios": "^0.24.0",
+		"cors": "^2.8.5",
+		"discord-api-types": "^0.25.2",
+		"discord.js": "^13.3.1",
+		"dotenv": "^10.0.0",
+		"express": "^4.17.1",
+		"helmet": "^4.6.0",
+		"mongoose": "^6.1.1",
+		"morgan": "^1.10.0",
+		"qs": "^6.10.2"
+	},
+	"devDependencies": {
+		"eslint": "^8.4.1"
+	},
+	"engines": {
+		"node": "16.13.x"
+	}
 }
