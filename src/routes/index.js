@@ -1,8 +1,9 @@
-const { CreateBroadCast, createReplyMessage } = require('./Create');
-const { RefreshToken } = require('./RefreshToken');
+const Broadcast = require('./Broadcast');
+const Token = require('./RefreshToken');
+const ImageUpload = require('./ImageUpload');
 
 module.exports = {
-	CreateBroadCast,
-	RefreshToken,
-	createReplyMessage,
+	Broadcast,
+	Token,
+	ImageUpload,
 };

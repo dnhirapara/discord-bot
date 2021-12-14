@@ -1,6 +1,6 @@
-const { CreateBroadCast, RefreshToken, createReplyMessage } = require('./routes');
+const { Broadcast, Token, ImageUpload } = require('./routes');
 const User = require('./models/UserModel');
-const { parseString, toInlineCode } = require('./utils');
+const { parseString, toInlineCode, getDateByDay } = require('./utils');
 
 const { Client, Intents } = require('discord.js');
 
@@ -40,7 +40,7 @@ module.exports = {
 					console.log(userData.expiry);
 					console.log(Date.now());
 					if (userData.expiry <= Date.now()) {
-						const tokenData = await RefreshToken(userData.refresh_token);
+						const tokenData = await Token.RefreshToken(userData.refresh_token);
 						console.log(tokenData);
 						userData.expiry = (Number(tokenData.expires_in) * 1000) + Date.now() - 5;
 						userData.access_token = tokenData.access_token;
@@ -53,10 +53,13 @@ module.exports = {
 					}
 					const days = args.pop() || 1;
 					for (let day = 0; day < days; day++) {
-						const newTitle = parseString(userData.title, day, Date.now());
-						const res = await CreateBroadCast({ title: newTitle, description: userData.description, access_token: userData.access_token });
+						const newDate = getDateByDay(day, Date.now());
+						const newTitle = parseString(userData.title, newDate);
+						const createResp = await Broadcast.create({ title: newTitle, description: userData.description, scheduledStartTime: newDate, access_token: userData.access_token });
+						const uploadResp = await ImageUpload.upload({ id: createResp.id, image_url: userData.imageURL, access_token: userData.access_token });
 						// console.log(res);
-						message.reply({ embeds: [createReplyMessage(res, day)] });
+						createResp.snippet.thumbnails = { ...uploadResp.items[0] };
+						message.reply(Broadcast.replyOnCreate(createResp, day));
 
 					}
 				}
