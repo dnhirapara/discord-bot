@@ -3,6 +3,8 @@ const User = require('./models/UserModel');
 const { parseString, toInlineCode, getDateByDay } = require('./utils');
 
 const { Client, Intents } = require('discord.js');
+const fs = require('fs');
+const axios = require('axios');
 
 const client = new Client({ intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES] });
 const PREFIX = '$';
@@ -56,7 +58,7 @@ module.exports = {
 						const newDate = getDateByDay(day, Date.now());
 						const newTitle = parseString(userData.title, newDate);
 						const createResp = await Broadcast.create({ title: newTitle, description: userData.description, scheduledStartTime: newDate, access_token: userData.access_token });
-						const uploadResp = await ImageUpload.upload({ id: createResp.id, image_url: userData.imageURL, access_token: userData.access_token });
+						const uploadResp = await ImageUpload.upload({ channelId: message.channel.id, id: createResp.id, image_url: userData.imageURL, access_token: userData.access_token });
 						console.log(uploadResp);
 						createResp.snippet.thumbnails = { ...uploadResp.items[0] };
 						message.reply(Broadcast.replyOnCreate(createResp, day));
@@ -84,6 +86,15 @@ module.exports = {
 				else if (CMD_NAME === 'setimage') {
 					const userData = await User.findOne({ username: message.author.tag });
 					userData.imageURL = message.attachments.first().url;
+					await axios({
+						method: 'GET',
+						url: userData.imageURL,
+						responseType: 'stream',
+					}).then(async (response) => {
+						await fs.mkdir(message.channel.id);
+						await response.data.pipe(fs.createWriteStream(`${message.channel.id}/img.png`));
+						console.log('image saved successfully!!!');
+					});
 					await userData.save();
 					message.reply('Image uploaded Successfully!!!');
 				}

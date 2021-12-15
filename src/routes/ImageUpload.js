@@ -15,17 +15,9 @@ module.exports = {
 			}],
 		};
 	},
-	upload: async ({ id, image_url, access_token }) => {
+	upload: async ({ channelId, id, access_token }) => {
 		const data = new FormData();
-		// await axios({
-		// 	method: 'GET',
-		// 	url: image_url,
-		// 	responseType: 'stream',
-		// }).then(async (response) => {
-		// 	await response.data.pipe(fs.createWriteStream('a.png'));
-		// 	console.log('image saved successfully!!!');
-		// });
-		data.append('media_body', fs.createReadStream('a.png'));
+		data.append('media_body', fs.createReadStream(`${channelId}/img.png`));
 		const config = {
 			method: 'post',
 			url: `https://www.googleapis.com/upload/youtube/v3/thumbnails/set?videoId=${id}&access_token=${access_token}`,
