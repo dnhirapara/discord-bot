@@ -1,6 +1,7 @@
 const axios = require('axios');
 module.exports = {
 	replyOnCreate: (data, day) => {
+		console.log('Message: ' + JSON.stringify(data.snippet.thumbnails.default));
 		return {
 			embeds: [{
 				color: 0xfff000,
@@ -21,7 +22,7 @@ module.exports = {
 				timestamp: data.snippet.scheduledStartTime,
 				footer: {
 					text: 'Event created for',
-					icon_url: 'https://i.imgur.com/w4UfX7u.png',
+					icon_url: data.snippet.thumbnails.default.url,
 				},
 			}],
 		};

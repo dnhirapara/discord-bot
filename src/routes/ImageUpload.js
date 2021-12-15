@@ -1,6 +1,7 @@
 const axios = require('axios');
 const FormData = require('form-data');
 const fs = require('fs');
+// import axios from 'axios';
 
 module.exports = {
 	replyOnUpload: (data) => {
@@ -16,14 +17,14 @@ module.exports = {
 	},
 	upload: async ({ id, image_url, access_token }) => {
 		const data = new FormData();
-		await axios({
-			method: 'GET',
-			url: image_url,
-			responseType: 'stream',
-		}).then((response) => {
-			response.data.pipe(fs.createWriteStream('a.png'));
-			console.log('image saved successfully!!!');
-		});
+		// await axios({
+		// 	method: 'GET',
+		// 	url: image_url,
+		// 	responseType: 'stream',
+		// }).then(async (response) => {
+		// 	await response.data.pipe(fs.createWriteStream('a.png'));
+		// 	console.log('image saved successfully!!!');
+		// });
 		data.append('media_body', fs.createReadStream('a.png'));
 		const config = {
 			method: 'post',
@@ -33,14 +34,15 @@ module.exports = {
 			},
 			data: data,
 		};
-
+		let response;
 		try {
-			const response = await axios(config);
+			response = await axios(config);
 			console.log(response.data.items[0].high);
 			return response.data;
 		}
 		catch (e) {
-			return 'IMG_UPLOAD: ' + e;
+			// if (fs.existsSync('a.png')) await fs.unlink('a.png');
+			return e;
 		}
 	},
 };

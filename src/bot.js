@@ -57,7 +57,7 @@ module.exports = {
 						const newTitle = parseString(userData.title, newDate);
 						const createResp = await Broadcast.create({ title: newTitle, description: userData.description, scheduledStartTime: newDate, access_token: userData.access_token });
 						const uploadResp = await ImageUpload.upload({ id: createResp.id, image_url: userData.imageURL, access_token: userData.access_token });
-						// console.log(res);
+						console.log(uploadResp);
 						createResp.snippet.thumbnails = { ...uploadResp.items[0] };
 						message.reply(Broadcast.replyOnCreate(createResp, day));
 
