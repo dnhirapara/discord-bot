@@ -2,7 +2,7 @@ const User = require('../models/UserModel');
 const { Broadcast, Token, ImageUpload } = require('../routes');
 const { parseString, toInlineCode, getDateByDay } = require('../utils');
 
-exports.create = async (interaction, options) => {
+exports.execute = async (interaction, options) => {
 	await interaction.deferReply();
 	const userTag = interaction.user.tag;
 	const channelId = interaction.channelId;
@@ -25,10 +25,13 @@ exports.create = async (interaction, options) => {
 			const createResp = await Broadcast.create({ title: newTitle, description: userData.description, scheduledStartTime: newDate, access_token: userData.access_token });
 			const uploadResp = await ImageUpload.upload({ channelId: channelId, id: createResp.id, image_url: userData.imageURL, access_token: userData.access_token });
 			if (uploadResp && uploadResp.items) createResp.snippet.thumbnails = { ...uploadResp.items[0] };
-			await interaction.editReply(Broadcast.replyOnCreate(createResp, day));
+			// await interaction.editReply(Broadcast.replyOnCreate(createResp, day));
+			await interaction.channel.send(Broadcast.replyOnCreate(createResp, day));
 		}
+		await interaction.editReply('Events Created!!');
 	}
 	catch (e) {
+		await interaction.editReply('ERROR: Something bad happened, raise issue on darshikhirapara@gmail.com');
 		console.warn(e);
 	}
 };

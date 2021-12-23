@@ -1,4 +1,5 @@
 const { Broadcast, Token, ImageUpload } = require('./routes');
+const Commands = require('./commands').getCommands();
 const User = require('./models/UserModel');
 const { parseString, toInlineCode, getDateByDay } = require('./utils');
 
@@ -18,48 +19,49 @@ module.exports = {
 		client.on('interactionCreate', async interaction => {
 			if (!interaction.isCommand()) return;
 			const { commandName, options } = interaction;
-			console.log(options.data);
-			const userTag = interaction.user.tag;
-			const channelId = interaction.channelId;
-			if (commandName === 'ping') {
-				await interaction.reply(options.getString('input'));
-			}
-			else if (commandName === 'create') {
-				await interaction.deferReply();
-				try {
-					const userData = await User.findOne({ username: userTag });
-					console.log(userData.expiry);
-					console.log(Date.now());
-					if (userData.expiry <= Date.now()) {
-						const tokenData = await Token.RefreshToken(userData.refresh_token);
-						console.log(tokenData);
-						userData.expiry = (Number(tokenData.expires_in) * 1000) + Date.now() - 5;
-						userData.access_token = tokenData.access_token;
-						userData.id_token = tokenData.id_token;
-						await userData.save();
-					}
-					// console.log(userData);
-					if (!userData.title || !userData.description) {
-						await interaction.editReply(`title or description not available. Please set it by ${toInlineCode('$set {title:<title>, description:<description>}')}`);
-					}
-					const days = options.getInteger('count') || 1;
-					for (let day = 0; day < days; day++) {
-						const newDate = getDateByDay(day, Date.now());
-						const newTitle = parseString(userData.title, newDate);
-						const createResp = await Broadcast.create({ title: newTitle, description: userData.description, scheduledStartTime: newDate, access_token: userData.access_token });
-						const uploadResp = await ImageUpload.upload({ channelId: channelId, id: createResp.id, image_url: userData.imageURL, access_token: userData.access_token });
-						console.log(uploadResp);
-						if (uploadResp && uploadResp.items) createResp.snippet.thumbnails = { ...uploadResp.items[0] };
-						await interaction.editReply(Broadcast.replyOnCreate(createResp, day));
-					}
-				}
-				catch (e) {
-					console.warn(e);
-				}
-			}
-			else if (commandName === 'user') {
-				await interaction.editReply('User info.');
-			}
+			Commands[commandName].execute(interaction, options);
+			// console.log(options.data);
+			// const userTag = interaction.user.tag;
+			// const channelId = interaction.channelId;
+			// if (commandName === 'ping') {
+			// 	await interaction.reply(options.getString('input'));
+			// }
+			// else if (commandName === 'create') {
+			// 	await interaction.deferReply();
+			// 	try {
+			// 		const userData = await User.findOne({ username: userTag });
+			// 		console.log(userData.expiry);
+			// 		console.log(Date.now());
+			// 		if (userData.expiry <= Date.now()) {
+			// 			const tokenData = await Token.RefreshToken(userData.refresh_token);
+			// 			console.log(tokenData);
+			// 			userData.expiry = (Number(tokenData.expires_in) * 1000) + Date.now() - 5;
+			// 			userData.access_token = tokenData.access_token;
+			// 			userData.id_token = tokenData.id_token;
+			// 			await userData.save();
+			// 		}
+			// 		// console.log(userData);
+			// 		if (!userData.title || !userData.description) {
+			// 			await interaction.editReply(`title or description not available. Please set it by ${toInlineCode('$set {title:<title>, description:<description>}')}`);
+			// 		}
+			// 		const days = options.getInteger('count') || 1;
+			// 		for (let day = 0; day < days; day++) {
+			// 			const newDate = getDateByDay(day, Date.now());
+			// 			const newTitle = parseString(userData.title, newDate);
+			// 			const createResp = await Broadcast.create({ title: newTitle, description: userData.description, scheduledStartTime: newDate, access_token: userData.access_token });
+			// 			const uploadResp = await ImageUpload.upload({ channelId: channelId, id: createResp.id, image_url: userData.imageURL, access_token: userData.access_token });
+			// 			console.log(uploadResp);
+			// 			if (uploadResp && uploadResp.items) createResp.snippet.thumbnails = { ...uploadResp.items[0] };
+			// 			await interaction.editReply(Broadcast.replyOnCreate(createResp, day));
+			// 		}
+			// 	}
+			// 	catch (e) {
+			// 		console.warn(e);
+			// 	}
+			// }
+			// else if (commandName === 'user') {
+			// 	await interaction.editReply('User info.');
+			// }
 		});
 
 		client.on('messageCreate', async (message) => {
