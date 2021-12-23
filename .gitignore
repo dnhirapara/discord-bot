@@ -139,3 +139,4 @@ dist
 
 **/commands/*.json
 examples/
+*.png
