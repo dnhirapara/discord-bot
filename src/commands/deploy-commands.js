@@ -8,7 +8,8 @@ const commands = [
 		option.setName('input')
 			.setDescription('The input to echo back')
 			.setRequired(true)),
-	new SlashCommandBuilder().setName('create').setDescription('Creates no of events with specified values.'),
+	new SlashCommandBuilder().setName('create').setDescription('Creates no of events with specified values.').addIntegerOption(option =>
+		option.setName('count').setDescription('No of events you want to create for next <count> days.').setRequired(false)),
 	new SlashCommandBuilder().setName('user').setDescription('Replies with user info!'),
 ]
 	.map(command => command.toJSON());

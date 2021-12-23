@@ -25,6 +25,7 @@ module.exports = {
 					icon_url: data.snippet.thumbnails.default.url,
 				},
 			}],
+			ephemeral: true,
 		};
 	},
 	create: async ({
