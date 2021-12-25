@@ -19,8 +19,15 @@ exports.execute = async (interaction, options) => {
 			await interaction.editReply(`title or description not available. Please set it by ${toInlineCode('$set {title:<title>, description:<description>}')}`);
 		}
 		const days = options.getInteger('count') || 1;
+		const optionDate = options.getString('startdate').split('/');
+		const optionTime = options.getString('starttime');
 		for (let day = 0; day < days; day++) {
-			const newDate = getDateByDay(day, Date.now());
+			let newDate = getDateByDay(day, Date.now(), optionTime);
+			if (optionDate && optionTime) {
+				const [_day, _month, _year] = optionDate.split('/');
+				const buildDate = `${_month}/${_day}/${_year} ${optionTime} GMT+0530`;
+				newDate = getDateByDay(day, new Date(buildDate), optionTime);
+			}
 			const newTitle = parseString(userData.title, newDate);
 			const createResp = await Broadcast.create({ title: newTitle, description: userData.description, scheduledStartTime: newDate, access_token: userData.access_token });
 			const uploadResp = await ImageUpload.upload({ channelId: channelId, id: createResp.id, image_url: userData.imageURL, access_token: userData.access_token });

@@ -1,9 +1,10 @@
-const getDateByDay = (_day, _currentDate) => {
+const getDateByDay = (_day, _currentDate, _startTime) => {
 	const __date = new Date(_currentDate);
+	const [__hour, __min, ..._] = _startTime.split(':');
 	__date.setDate(__date.getDate() + _day);
 	if (_day) {
-		__date.setHours(5);
-		__date.setMinutes(0);
+		__date.setHours(__hour);
+		__date.setMinutes(__min);
 	}
 	return __date;
 };
