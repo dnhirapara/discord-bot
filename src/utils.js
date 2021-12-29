@@ -4,7 +4,7 @@ const getDateByDay = (_day, _currentDate, _startTime) => {
 	__date.setDate(__date.getDate() + _day);
 	if (_day) {
 		__date.setUTCHours(__hour);
-		__date.setUTCMinutes(__min - __date.getTimezoneOffset());
+		__date.setUTCMinutes(__min - 330);
 	}
 	return __date;
 };
