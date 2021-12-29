@@ -4,7 +4,7 @@ const getDateByDay = (_day, _currentDate, _startTime) => {
 	__date.setDate(__date.getDate() + _day);
 	if (_day) {
 		__date.setHours(__hour);
-		__date.setMinutes(__min);
+		__date.setMinutes(__min + __date.getTimezoneOffset());
 	}
 	return __date;
 };
