@@ -19,10 +19,10 @@ exports.execute = async (interaction, options) => {
 			await interaction.editReply(`title or description not available. Please set it by ${toInlineCode('$set {title:<title>, description:<description>}')}`);
 		}
 		const days = options.getInteger('count') || 1;
-		const optionDate = options.getString('startdate').split('/');
+		const optionDate = options.getString('startdate');
 		const optionTime = options.getString('starttime');
 		for (let day = 0; day < days; day++) {
-			let newDate = getDateByDay(day, Date.now(), optionTime);
+			let newDate = getDateByDay(day, Date.now(), optionTime || "05:30");
 			if (optionDate && optionTime) {
 				const [_day, _month, _year] = optionDate.split('/');
 				const buildDate = `${_month}/${_day}/${_year} ${optionTime} GMT+0530`;
